@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 A small templating language
 
@@ -10,6 +11,8 @@ The syntax is::
   {{for x in y}}...{{endfor}}
   {{if x}}x{{elif y}}y{{else}}z{{endif}}
   {{default var = default_value}}
+  {{inherit ...}}
+  {{def block}}
   {{# comment}}
 
 You use this with the ``Template`` class or the ``sub`` shortcut.
@@ -22,6 +25,9 @@ method to make a substitution (or ``tmpl.substitute(a_dict)``).
 can use ``__name='tmpl.html'`` to set the name of the template.
 
 If there are syntax errors ``TemplateError`` will be raised.
+
+Copyright (c) 2015 Wolfgang Langner
+License MIT, see license.txt.
 """
 
 import re
@@ -33,9 +39,9 @@ import inspect
 from pprint import pprint
 
 __all__ = ['TemplateError', 'Template', 'sub', 'HTMLTemplate',
-           'sub_html', 'html']
+           'sub_html', 'html', 'looper']
 
-__version__ = "0.6.0"
+__version__ = "0.6.0dev"
 
 in_re = re.compile(r'\s+in\s+')
 var_re = re.compile(r'^[a-z_][a-z0-9_]*$', re.I)
@@ -246,6 +252,24 @@ def get_file_template(name, from_template):
 
 
 class Template(object):
+    """
+    Basic tempita template class.
+
+    Initialize with template content and use substitute to get the result.
+
+    :param str content: The template content as sting.
+    :param str name: Optional name of template.
+    :param dict namespace: Namespace used to get variables and functions.
+    :param stacklevel int: Stacklevel used to find the name and other
+                           information for error output.
+    :param function get_template: A function used to find the parent template
+                                  if inherit is used.
+    :param default_inherit: Default inheritance function.
+    :param int line_offset: If the template is embedded and does not start with
+                        line 1 a line offset can be specified.
+    :param tuple delimiters: A tuple of the delimiters used in template content.
+    :return: A new template object.
+    """
 
     default_namespace = {
         'start_braces': '{{',
@@ -322,6 +346,10 @@ class Template(object):
             hex(id(self))[2:], self.name)
 
     def substitute(self, *args, **kw):
+        """
+        Substitue the temlate with the specified arguments.
+        If one positional argument is given this is interpreted as a dict.
+        """
         if args:
             if kw:
                 raise TypeError(
@@ -529,53 +557,24 @@ class Template(object):
 
 
 def sub(content, delimeters=None, **kw):
+    """
+    Create a Template and substitute it with provided parameters.
+    Handy function to do all in one step.
+    If no keyword parameters are given the local context
+    of the caller is used.
+    """
+    if not kw:
+        frame = inspect.currentframe()
+        try:
+            kw = frame.f_back.f_locals
+        except:
+            kw = {}
+        finally:
+            del frame
     name = kw.get('__name')
     tmpl = Template(content, name=name, delimeters=delimeters)
     return tmpl.substitute(kw)
 
-
-def sub_locals(content, delimeters=None):
-    frame = inspect.currentframe()
-    try:
-        kw = frame.f_back.f_locals
-    except:
-        kw = {}
-    finally:
-        del frame
-    return sub(content, delimeters, **kw)
-
-
-# class bunch(dict):
-
-#     def __init__(self, **kw):
-#         for name, value in kw.items():
-#             setattr(self, name, value)
-
-#     def __setattr__(self, name, value):
-#         self[name] = value
-
-#     def __getattr__(self, name):
-#         try:
-#             return self[name]
-#         except KeyError:
-#             raise AttributeError(name)
-
-#     def __getitem__(self, key):
-#         if 'default' in self:
-#             try:
-#                 return dict.__getitem__(self, key)
-#             except KeyError:
-#                 return dict.__getitem__(self, 'default')
-#         else:
-#             return dict.__getitem__(self, key)
-
-#     def __repr__(self):
-#         items = [
-#             (k, v) for k, v in self.items()]
-#         items.sort()
-#         return '<%s %s>' % (
-#             self.__class__.__name__,
-#             ' '.join(['%s=%r' % (k, v) for k, v in items]))
 
 ############################################################
 ## HTML Templating

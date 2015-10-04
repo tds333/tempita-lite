@@ -88,8 +88,10 @@ def test_default():
     assert r == '2'
     r = sub('{{default x=1}}{{x}}')
     assert r == '1'
+    print(locals())
     with raises(NameError):
-        sub('{{x}}')
+        r = sub('{{x}}')
+        print(r)
 
 def test_comment():
     r = sub('Test=x{{#whatever}}')
@@ -97,41 +99,40 @@ def test_comment():
 
 
 def test_inherit():
-    def get_template(name, from_template):
-        return globals()[name]
-    tmpl = Template('''\
-    {{inherit "super_"+master}}
-    Hi there!
-    {{def block}}some text{{enddef}}
-    ''', get_template=get_template)
     super_test = Template('''\
-    This is the parent {{master}}. The block: {{self.block}}
+    This is the parent {{master}}.
+    The block: {{self.block}}
     Then the body: {{self.body}}
     ''')
+    def get_template(name, from_template):
+        assert name == "super_test"
+        return super_test
+    tmpl = Template('''
+    {{inherit "super_"+master}}
+    Hi there! {{def block}}some text{{enddef}}
+    ''', get_template=get_template)
     r = tmpl.substitute(master='test').strip()
-    assert r == """\
-    This is the parent test. The block: some text
-    Then the body: Hi there!
-    """
+    assert r == """This is the parent test.
+    The block: some text
+    Then the body:     Hi there!"""
 
 def test_whitespace():
     tmpl = Template('''\
-    {{for i, item in enumerate(['a', 'b'])}}
-        {{if i % 2 == 0}}
-      <div class='even'>
-        {{else}}
-      <div class='odd'>
-        {{endif}}
-        {{item}}
-      </div>
-    {{endfor}}''')
+{{for i, item in enumerate(['a', 'b'])}}
+    {{if i % 2 == 0}}
+  <div class='even'>
+    {{else}}
+  <div class='odd'>
+    {{endif}}
+    {{item}}
+  </div>
+{{endfor}}''')
     r = tmpl.substitute()
     assert r == """\
-      <div class='even'>
-        a
-      </div>
-      <div class='odd'>
-        b
-      </div>
-
-    """
+  <div class='even'>
+    a
+  </div>
+  <div class='odd'>
+    b
+  </div>
+"""

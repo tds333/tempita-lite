@@ -36,6 +36,7 @@ import cgi
 import os
 import tokenize
 import inspect
+from copy import copy
 from pprint import pprint
 
 __all__ = ['TemplateError', 'Template', 'sub', 'HTMLTemplate',
@@ -363,7 +364,7 @@ class Template(object):
                      "dict-like object (with a .items() method); you gave %r")
                     % (args[0],))
             kw = args[0]
-        ns = kw
+        ns = copy(kw)
         ns['__template_name__'] = self.name
         if self.namespace:
             ns.update(self.namespace)
@@ -567,10 +568,9 @@ def sub(content, delimeters=None, **kw):
         frame = inspect.currentframe()
         try:
             kw = frame.f_back.f_locals
-        except:
-            kw = {}
         finally:
             del frame
+    print(kw)
     name = kw.get('__name')
     tmpl = Template(content, name=name, delimeters=delimeters)
     return tmpl.substitute(kw)

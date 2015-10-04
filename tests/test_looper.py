@@ -12,4 +12,4 @@ def test_looper():
             assert loop.first
         elif item == 'orange':
             assert loop.last
-        assert result[loop.number] == (loop.number, item)
+        assert result[loop.number-1] == (loop.number, item)

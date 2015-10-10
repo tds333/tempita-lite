@@ -6,3 +6,5 @@ docs/_build/
 *.pyc
 *.pyo
 .cache
+.idea/
+tempita.sublime-workspace

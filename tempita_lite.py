@@ -218,6 +218,7 @@ class loop_pos(object):
 # end _looper.py
 #
 
+
 class TemplateError(Exception):
     """Exception raised while parsing a template
     """
@@ -348,7 +349,7 @@ class Template(object):
 
     def substitute(self, *args, **kw):
         """
-        Substitue the temlate with the specified arguments.
+        Substitute the template with the specified arguments.
         If one positional argument is given this is interpreted as a dict.
         """
         if args:

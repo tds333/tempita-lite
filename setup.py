@@ -3,16 +3,14 @@ import sys
 import os
 from setuptools import setup
 
-with open("tempita-lite.py", "rb") as f:
-    pass
-
+from tempita_lite import __version__ as version
 
 
 setup(name='Tempita-lite',
       version=version,
       description="A very small text templating language",
       long_description="""\
-Tempita lite is a small templating language for text substitution.
+Tempita-lite is a small templating language for text substitution.
 
 Based on Tempita but a reduced set of functionality and bundled as
 only one file usable as python module. Easy to embedded in your own

@@ -12,6 +12,6 @@ string.Template or {%} substitution.
 
 It's small, simple, extendable and it is only one file.
 
-[Main site](https:https://bitbucket.org/tds/tempita-lite)
+[Main site](https://github.com/tds333/tempita-lite)
 
 Tempita was originally authored by [Ian Bicking](https://bitbucket.org/ianb).
